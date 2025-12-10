@@ -1,0 +1,10 @@
+{
+    "name": "mnist example",
+    "designId": "mnist",
+    "priority": "low",
+    "maxRunTime": 1800,
+    "backend": "mqtt",
+
+    "dataSpecPath": "dataSpec.json",
+    "modelSpecPath": "modelSpec.json"
+}

@@ -1,0 +1,80 @@
+{
+  "taskid": "59d06b7526964db86cf37c70e8e0cdb6bd7eeaa7991",
+  "backend": "p2p",
+  "brokers": [
+    {
+      "host": "localhost",
+      "sort": "mqtt"
+    },
+    {
+      "host": "10.10.1.3:10104",
+      "sort": "p2p"
+    }
+  ],
+  "groupAssociation": {
+    "trainer-coord-channel": "default",
+    "param-channel": "default"
+  },
+  "channels": [
+    {
+      "name": "trainer-coord-channel",
+      "description": "Channel between trainer and coordinator",
+      "pair": [
+        "trainer",
+        "coordinator"
+      ],
+      "groupBy": {
+        "type": "tag",
+        "value": ["default"]
+      },
+      "funcTags": {
+        "trainer": ["coordinate"],
+        "coordinator": ["coordinateWithTrainer"]
+      }
+    },
+    {
+      "description": "Model update is sent from leaf aggregator to trainer and vice-versa",
+      "groupBy": {
+        "type": "tag",
+        "value": ["default"]
+      },
+      "name": "param-channel",
+      "pair": [
+        "leaf-aggregator",
+        "trainer"
+      ],
+      "funcTags": {
+        "leaf-aggregator": ["distribute", "aggregate"],
+        "trainer": ["fetch", "upload"]
+      }
+    }
+  ],
+  "dataset": "",
+  "dependencies": [
+    "numpy >= 1.2.0"
+  ],
+  "hyperparameters": {
+    "batchSize": 32,
+    "learningRate": 0.01,
+    "rounds": 5
+  },
+  "baseModel": {
+    "name": "",
+    "version": 1
+  },
+  "job": {
+    "id": "622a358619ab59012eabeefb",
+    "name": "femnist"
+  },
+  "registry": {
+    "sort": "dummy",
+    "uri": ""
+  },
+  "selector": {
+    "sort": "default",
+    "kwargs": {}
+  },
+  "maxRunTime": 300,
+  "realm": "org1-cluster",
+  "role": "trainer"
+}

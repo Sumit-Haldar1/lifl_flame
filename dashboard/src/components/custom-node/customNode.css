@@ -1,0 +1,52 @@
+.custom-node-body {
+  width: 150px;
+  height: 60px;
+  border: 1px solid lightgray;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: rgb(228, 227, 227) !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: lighten;
+  box-shadow: rgba(58, 53, 65, 0.42) 0px 4px 8px -4px;
+}
+
+.status-indicator {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  top: 5px;
+  left: 5px;
+  cursor: default;
+}
+
+.custom-handle {
+  width: 100%;
+  height: 100%;
+  background: blue;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 0;
+  transform: none;
+  border: none;
+  opacity: 0;
+}
+
+.custom-handle.target {
+  cursor: crosshair !important;
+}
+
+.custom-drag-handle {
+  z-index: 3;
+}

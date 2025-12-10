@@ -1,0 +1,10 @@
+{
+    "name": "synchronous hierarchical fl with coordinator",
+    "designId": "syncfl_hier_coord_mnist",
+    "priority": "low",
+    "backend": "mqtt",
+    "maxRunTime": 1800,
+
+    "dataSpecPath": "dataSpec.json",
+    "modelSpecPath": "modelSpec.json"
+}

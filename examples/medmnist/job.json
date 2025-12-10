@@ -1,0 +1,10 @@
+{
+    "name": "medical mnist example",
+    "designId": "medmnist",
+    "priority": "low",
+    "maxRunTime": 86400,
+    "backend": "mqtt",
+
+    "dataSpecPath": "dataSpec.json",
+    "modelSpecPath": "modelSpec.json"
+}

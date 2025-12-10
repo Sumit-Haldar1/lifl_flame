@@ -1,0 +1,10 @@
+{
+    "name": "hybrid fl example",
+    "designId": "hybrid",
+    "priority": "low",
+    "maxRunTime": 300,
+    "backend": "mqtt",
+
+    "dataSpecPath": "dataSpec.json",
+    "modelSpecPath": "modelSpec.json"
+}

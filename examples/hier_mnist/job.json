@@ -1,0 +1,10 @@
+{
+    "name": "hierarchical mnist example",
+    "designId": "hier_mnist",
+    "priority": "low",
+    "maxRunTime": 7200,
+    "backend": "p2p",
+
+    "dataSpecPath": "dataSpec.json",
+    "modelSpecPath": "modelSpec.json"
+}

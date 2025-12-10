@@ -1,0 +1,10 @@
+{
+    "name": "asynchronous hierachical fl example",
+    "designId": "asyncfl_hier_mnist",
+    "priority": "low",
+    "backend": "mqtt",
+    "maxRunTime": 1800,
+
+    "dataSpecPath": "dataSpec.json",
+    "modelSpecPath": "modelSpec.json"
+}

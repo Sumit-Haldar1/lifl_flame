@@ -1,0 +1,24 @@
+.sidebar-link {
+    width: 100%;
+    padding: 5px 0 5px 15px;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.item-title {
+    font-size: 10px;
+}
+
+.sidebar-link.active {
+    box-shadow: rgba(58, 53, 65, 0.42) 0px 4px 8px -4px;
+    background-color: #283618;
+    /* background-image: linear-gradient(98deg, #2C2C54, #ababd3 94%); */
+    border-radius: 0px 100px 100px 0px;
+    color: white !important;
+}
+
+.sidebar-link.active svg {
+    color: white !important;
+}
