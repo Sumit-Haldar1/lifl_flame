@@ -1,5 +1,5 @@
 {
-  "taskid": "59d06b7526964db86cf37c70e8e0cdb6bd7eeaa799",
+  "taskid": "59d06b7526964db86cf37c70e8e0cdb6bd7eeaa79101",
   "backend": "p2p",
   "brokers": [
     {
@@ -7,7 +7,7 @@
       "sort": "mqtt"
     },
     {
-      "host": "10.10.1.3:10104",
+      "host": "10.10.1.1:10104",
       "sort": "p2p"
     }
   ],

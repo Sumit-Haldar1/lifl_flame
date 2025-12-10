@@ -1,5 +1,5 @@
 {
-  "taskid": "69d06b7526964db86cf37c70e8e0cdb6bd7aa709",
+  "taskid": "10279d06b7526964db86cf37c70e8e0cdb6bd7aa710093",
   "backend": "p2p",
   "brokers": [
     {
@@ -12,16 +12,16 @@
     }
   ],
   "groupAssociation": {
-    "middle-agg-coord-channel": "default",
-    "global-channel": "default",
-    "hier-channel": "default"
+    "leaf-agg-coord-channel": "default",
+    "hier-channel": "default",
+    "param-channel": "default"
   },
   "channels": [
     {
-      "name": "middle-agg-coord-channel",
-      "description": "Channel between middle aggregator and coordinator",
+      "name": "leaf-agg-coord-channel",
+      "description": "Channel between leaf aggregator and coordinator",
       "pair": [
-        "middle-aggregator",
+        "leaf-aggregator",
         "coordinator"
       ],
       "groupBy": {
@@ -29,24 +29,8 @@
         "value": ["default"]
       },
       "funcTags": {
-        "middle-aggregator": ["coordinate"],
-        "coordinator": ["coordinateWithMidAgg"]
-      }
-    },
-    {
-      "description": "Model update is sent from mid aggregator to top aggregator and vice-versa",
-      "groupBy": {
-        "type": "tag",
-        "value": ["default"]
-      },
-      "name": "global-channel",
-      "pair": [
-        "top-aggregator",
-        "middle-aggregator"
-      ],
-      "funcTags": {
-        "top-aggregator": ["distribute", "aggregate"],
-        "middle-aggregator": ["fetch", "upload"]
+        "leaf-aggregator": ["coordinate"],
+        "coordinator": ["coordinateWithLeafAgg"]
       }
     },
     {
@@ -63,6 +47,22 @@
       "funcTags": {
         "middle-aggregator": ["distribute", "aggregate"],
         "leaf-aggregator": ["fetch", "upload"]
+      }
+    },
+    {
+      "description": "Model update is sent from leaf aggregator to trainer and vice-versa",
+      "groupBy": {
+        "type": "tag",
+        "value": ["default"]
+      },
+      "name": "param-channel",
+      "pair": [
+        "leaf-aggregator",
+        "trainer"
+      ],
+      "funcTags": {
+        "leaf-aggregator": ["distribute", "aggregate"],
+        "trainer": ["fetch", "upload"]
       }
     }
   ],
@@ -92,5 +92,5 @@
   },
   "maxRunTime": 300,
   "realm": "default-cluster",
-  "role": "middle-aggregator"
+  "role": "leaf-aggregator"
 }
