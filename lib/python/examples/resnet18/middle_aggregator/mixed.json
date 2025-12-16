@@ -1,5 +1,5 @@
 {
-  "taskid": "49d06b7526964db86cf37c70e8e0cdb6bd7aa701",
+  "taskid": "7290014237",
   "backend": "p2p",
   "brokers": [
     {
@@ -16,27 +16,27 @@
     }
   ],
   "groupAssociation": {
+    "middle-agg-coord-channel": "default",
     "global-channel": "default",
-    "top-agg-coord-channel": "default"
+    "hier-channel": "default"
   },
   "channels": [
     {
-      "name": "top-agg-coord-channel",
-      "description": "Channel between top aggregator and coordinator",
-      "pair": ["top-aggregator", "coordinator"],
-      "backend": "shm",
+      "name": "middle-agg-coord-channel",
+      "description": "Channel between middle aggregator and coordinator",
+      "pair": ["middle-aggregator", "coordinator"],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
       },
       "funcTags": {
-        "top-aggregator": ["coordinate"],
-        "coordinator": ["coordinateWithTopAgg"]
+        "middle-aggregator": ["coordinate"],
+        "coordinator": ["coordinateWithMidAgg"]
       }
     },
     {
       "name": "global-channel",
-      "description": "Model update exchange between mid aggregators and top aggregator",
+      "description": "Model updates between top aggregator and middle aggregator",
       "pair": ["top-aggregator", "middle-aggregator"],
       "groupBy": {
         "type": "tag",
@@ -46,13 +46,27 @@
         "top-aggregator": ["distribute", "aggregate"],
         "middle-aggregator": ["fetch", "upload"]
       }
+    },
+    {
+      "name": "hier-channel",
+      "description": "Model updates between middle aggregator and leaf aggregator",
+      "pair": ["middle-aggregator", "leaf-aggregator"],
+      "backend": "shm",
+      "groupBy": {
+        "type": "tag",
+        "value": ["default"]
+      },
+      "funcTags": {
+        "middle-aggregator": ["distribute", "aggregate"],
+        "leaf-aggregator": ["fetch", "upload"]
+      }
     }
   ],
   "dependencies": ["numpy >= 1.2.0"],
   "hyperparameters": {
     "batchSize": 32,
     "learningRate": 0.01,
-    "rounds": 1000
+    "rounds": 5
   },
   "baseModel": {
     "name": "",
@@ -71,6 +85,6 @@
     "kwargs": {}
   },
   "maxRunTime": 300,
-  "realm": "",
-  "role": "top-aggregator"
+  "realm": "default-cluster",
+  "role": "middle-aggregator"
 }

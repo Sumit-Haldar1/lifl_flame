@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 log_file = "/mydata/image_cls-top_aggregator.log"
 file_handler = logging.FileHandler(log_file)
 logger.addHandler(file_handler)
+logger.setLevel(logging.INFO)  
 
 
 def override(method):
@@ -126,6 +127,10 @@ class PyTorchFemnistAggregator(TopAggregator):
         self.previous_round_time = time.time()
         self.current_round_time = time.time()
 
+        # Global timing (for cumulative runtime across rounds)  <-- NEW
+        self.global_start_time = time.time()
+        self.cumulative_time = 0.0
+
         # Delays / metrics (defaults so logging never crashes)
         self.cpu_time = 0.0
         self.utilization = 0.0
@@ -209,6 +214,9 @@ class PyTorchFemnistAggregator(TopAggregator):
         round_duration = now - self.previous_round_time
         self.current_round_time = now
 
+        # Cumulative runtime since this top aggregator started  <-- NEW
+        self.cumulative_time = now - self.global_start_time
+
         if round_duration > 0:
             # crude approximation; keeps utilization in [0, 1]
             self.utilization = min(self.cpu_time / round_duration, 1.0)
@@ -237,6 +245,7 @@ class PyTorchFemnistAggregator(TopAggregator):
             f"CPU time: {self.cpu_time:.4f} || "
             f"CPU utilization: {self.utilization:.4f} || "
             f"R#{self._round}'s duration (s): {round_duration:.4f} || "
+            f"Cumulative runtime (s): {self.cumulative_time:.4f} || "  # <-- NEW
             f"Loading data delay (s): {self.load_data_delay:.4f} || "
             f"Eval delay (s): {self.eval_delay:.4f} || "
             f"Agg delay (s): {self.agg_delay:.4f} || "
@@ -247,6 +256,11 @@ class PyTorchFemnistAggregator(TopAggregator):
             f"MSG (from mid) Ave. delay: {avg_msg_from_mid:.4f} || "
             f"Total cache delay: {total_cache_delay:.4f} || "
             f"Ave. cache delay: {avg_cache_delay:.4f}"
+        )
+
+        # Optional: simple line that is easy to grep  <-- NEW
+        logger.info(
+            f"[R#{self._round}] CUMULATIVE_RUNTIME_SEC={self.cumulative_time:.4f}"
         )
 
         logger.info(

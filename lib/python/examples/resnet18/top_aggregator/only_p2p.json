@@ -7,12 +7,8 @@
       "sort": "mqtt"
     },
     {
-      "host": "10.10.1.11:10104",
+      "host": "10.10.1.1:10104",
       "sort": "p2p"
-    },
-    {
-      "host": "localhost:10105",
-      "sort": "shm"
     }
   ],
   "groupAssociation": {
@@ -23,8 +19,10 @@
     {
       "name": "top-agg-coord-channel",
       "description": "Channel between top aggregator and coordinator",
-      "pair": ["top-aggregator", "coordinator"],
-      "backend": "shm",
+      "pair": [
+        "top-aggregator",
+        "coordinator"
+      ],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
@@ -35,20 +33,25 @@
       }
     },
     {
-      "name": "global-channel",
-      "description": "Model update exchange between mid aggregators and top aggregator",
-      "pair": ["top-aggregator", "middle-aggregator"],
+      "description": "Model update is sent from mid aggregator to top aggregator and vice-versa",
       "groupBy": {
         "type": "tag",
         "value": ["default"]
       },
+      "name": "global-channel",
+      "pair": [
+        "top-aggregator",
+        "middle-aggregator"
+      ],
       "funcTags": {
         "top-aggregator": ["distribute", "aggregate"],
         "middle-aggregator": ["fetch", "upload"]
       }
     }
   ],
-  "dependencies": ["numpy >= 1.2.0"],
+  "dependencies": [
+    "numpy >= 1.2.0"
+  ],
   "hyperparameters": {
     "batchSize": 32,
     "learningRate": 0.01,

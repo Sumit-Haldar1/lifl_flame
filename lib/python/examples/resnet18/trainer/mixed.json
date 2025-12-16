@@ -1,5 +1,5 @@
 {
-  "taskid": "49d06b7526964db86cf37c70e8e0cdb6bd7aa701",
+  "taskid": "27906478",
   "backend": "p2p",
   "brokers": [
     {
@@ -16,43 +16,52 @@
     }
   ],
   "groupAssociation": {
-    "global-channel": "default",
-    "top-agg-coord-channel": "default"
+    "trainer-coord-channel": "default",
+    "param-channel": "default"
   },
   "channels": [
     {
-      "name": "top-agg-coord-channel",
-      "description": "Channel between top aggregator and coordinator",
-      "pair": ["top-aggregator", "coordinator"],
-      "backend": "shm",
+      "name": "trainer-coord-channel",
+      "description": "Channel between trainer and coordinator",
+      "pair": [
+        "trainer",
+        "coordinator"
+      ],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
       },
       "funcTags": {
-        "top-aggregator": ["coordinate"],
-        "coordinator": ["coordinateWithTopAgg"]
+        "trainer": ["coordinate"],
+        "coordinator": ["coordinateWithTrainer"]
       }
     },
     {
-      "name": "global-channel",
-      "description": "Model update exchange between mid aggregators and top aggregator",
-      "pair": ["top-aggregator", "middle-aggregator"],
+      "description": "Model update is sent from leaf aggregator to trainer and vice-versa",
       "groupBy": {
         "type": "tag",
         "value": ["default"]
       },
+      "name": "param-channel",
+      "pair": [
+        "leaf-aggregator",
+        "trainer"
+      ],
+      "backend": "shm",
       "funcTags": {
-        "top-aggregator": ["distribute", "aggregate"],
-        "middle-aggregator": ["fetch", "upload"]
+        "leaf-aggregator": ["distribute", "aggregate"],
+        "trainer": ["fetch", "upload"]
       }
     }
   ],
-  "dependencies": ["numpy >= 1.2.0"],
+  "dataset": "",
+  "dependencies": [
+    "numpy >= 1.2.0"
+  ],
   "hyperparameters": {
     "batchSize": 32,
     "learningRate": 0.01,
-    "rounds": 1000
+    "rounds": 5
   },
   "baseModel": {
     "name": "",
@@ -71,6 +80,6 @@
     "kwargs": {}
   },
   "maxRunTime": 300,
-  "realm": "",
-  "role": "top-aggregator"
+  "realm": "org1-cluster",
+  "role": "trainer"
 }

@@ -7,12 +7,8 @@
       "sort": "mqtt"
     },
     {
-      "host": "10.10.1.11:10104",
+      "host": "10.10.1.1:10104",
       "sort": "p2p"
-    },
-    {
-      "host": "localhost:10105",
-      "sort": "shm"
     }
   ],
   "groupAssociation": {
@@ -25,8 +21,10 @@
     {
       "name": "top-agg-coord-channel",
       "description": "Channel between top aggregator and coordinator",
-      "pair": ["top-aggregator", "coordinator"],
-      "backend": "shm",
+      "pair": [
+        "top-aggregator",
+        "coordinator"
+      ],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
@@ -39,7 +37,10 @@
     {
       "name": "middle-agg-coord-channel",
       "description": "Channel between middle aggregator and coordinator",
-      "pair": ["middle-aggregator", "coordinator"],
+      "pair": [
+        "middle-aggregator",
+        "coordinator"
+      ],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
@@ -52,7 +53,10 @@
     {
       "name": "leaf-agg-coord-channel",
       "description": "Channel between leaf aggregator and coordinator",
-      "pair": ["leaf-aggregator", "coordinator"],
+      "pair": [
+        "leaf-aggregator",
+        "coordinator"
+      ],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
@@ -65,7 +69,10 @@
     {
       "name": "trainer-coord-channel",
       "description": "Channel between trainer and coordinator",
-      "pair": ["trainer", "coordinator"],
+      "pair": [
+        "trainer",
+        "coordinator"
+      ],
       "groupBy": {
         "type": "tag",
         "value": ["default"]
