@@ -1,26 +1,25 @@
-<p align="center"><img src="docs/images/logo.png" alt="flame logo" width="200"/></p>
+# Hierarchical Federated Learning with P2P vs SHM+P2P Communication
 
-[![](https://img.shields.io/badge/Flame-Join%20Slack-brightgreen)](https://join.slack.com/t/flame-slack/shared_invite/zt-1mprreo9z-FmpGb1UPi43JOFJKyhIqAQ)
+## Project Overview
 
-[:fire: **Quickstart! (Ubuntu)** :fire:](docs/quickstart-ubuntu.md)
+This project evaluates how different communication backends impact the performance of **hierarchical federated learning (FL)** using the **FLAME framework**. We compare two communication designs:
 
-[:fire: **Quickstart! (macOS)** :fire:](docs/quickstart-mac.md)
+- **P2P only**: All communication is performed using point-to-point gRPC over the network.
+- **SHM + P2P**: Shared Memory (SHM) is used for intra-node communication, while P2P gRPC is used for inter-node communication.
 
-Flame is a platform that enables developers to compose and deploy federated learning (FL) training workloads easily.
-The system is comprised of a service (control plane) and a python library (data plane).
-The service manages machine learning workloads, while the python library facilitates composition of ML workloads.
-And the library is also responsible for executing FL workloads.
-With extensibility of its library, Flame can support various experimentations and use cases.
+The goal is to understand whether avoiding the network stack for processes running on the same machine can reduce communication overhead, improve runtime, and increase overall training efficiency.
 
-We have improved Flame with a redesigned control plane and data plane
-(called LIFL) for efficient FL aggregation at scale. LIFL leverages shared memory processing to achieve high-performance communication for hierarchical aggregation. We also introduce locality-aware placement in LIFL to maximize the benefits of shared memory processing. LIFL precisely scales and carefully reuses the resources for hierarchical aggregation to achieve the highest degree of parallelism while minimizing the aggregation time and resource consumption.
+The experiments are conducted using:
+- **FEMNIST dataset**
+- **ResNet-18 model**
+- **Hierarchical FL topology** (Trainer → Leaf Aggregator → Middle Aggregator → Top Aggregator → Coordinator)
+- **10 nodes total**, with 9 worker nodes and 1 coordinator/top-aggregator node
 
-[:fire: **Quickstart with LIFL** :fire:](docs/lifl/lifl.md)
+---
 
-## Prerequisites
-The target runtime environment is Linux. Development has been mainly conducted under macOS environment.
-One should first set up a development environment.
-For more details, refer to [here](docs/prerequisites.md).
+## Repository Structure
+
+
 
 This repo has the following directory structure:
 ```
@@ -44,57 +43,204 @@ flame
  └── scripts (utility scripts)
 ```
 
-## Supported Algorithms/Mechanisms
+## System Architecture
 
-| Method          | Note                                                                                                                               |
-|-----------------|------------------------------------------------------------------------------------------------------------------------------------|
-| FedAvg          | https://arxiv.org/pdf/1602.05629.pdf                                                                                               |
-| FedYogi         | https://arxiv.org/pdf/2003.00295.pdf                                                                                               |
-| FedAdam         | https://arxiv.org/pdf/2003.00295.pdf                                                                                               |
-| FedAdaGrad      | https://arxiv.org/pdf/2003.00295.pdf                                                                                               |
-| FedProx         | https://arxiv.org/pdf/1812.06127.pdf                                                                                               |
-| FedBuff         | Asynchronous FL (https://arxiv.org/pdf/2106.06639.pdf and https://arxiv.org/pdf/2111.04877.pdf); secure aggregation is excluded    |
-| FedDyn          | https://arxiv.org/pdf/2111.04263.pdf                                                                                               |
-| OORT            | https://arxiv.org/pdf/2010.06081.pdf; client selection algorithm / mechanism; experimental release                                 |
-| Hierarchical FL | https://arxiv.org/pdf/1905.06641.pdf; a simplified version where k<sub>2</sub> = 1; support both synchronous and asynchronous FL   |
-| Hybrid FL       | A hybrid approach to combine federated learning with ring-reduce; topology motivated from https://openreview.net/pdf?id=H0oaWl6THa |
+The experiments are conducted on a 10-node cluster with the following setup:
+
+- **1 node**:
+  - Coordinator
+  - Top Aggregator
+
+- **9 worker nodes** (each node runs):
+  - 1 Middle Aggregator
+  - 3 Leaf Aggregators
+  - 6 Trainers
+
+The hierarchical FL workflow follows:
+Trainer → Leaf Aggregator → Middle Aggregator → Top Aggregator → Coordinator
+
+All experiments use the FEMNIST dataset and a ResNet-18 model.
 
 
-## Documentation
+## Environment Setup
 
-A full document can be found [here](docs/README.md). The document will be updated on a regular basis.
+Run the following commands on each node before running the experiments.
 
-## Support
+```bash
+# System packages
+sudo apt update && sudo apt install -y byobu htop
 
-We welcome feedback, questions, and issue reports.
+# Storage setup
+sudo chown -R $(id -u):$(id -g) /mydata
+cd /mydata
+export MYMOUNT=/mydata
 
-* Maintainers' email address: <flame-github-owners@cisco.com>
-* [GitHub Issues](https://github.com/cisco-open/flame/issues/new/choose)
+# Install Go
+golang_file=go1.22.3.linux-amd64.tar.gz
+curl -LO https://go.dev/dl/$golang_file
+tar -C /mydata -xzf $golang_file
 
-## Contributors
+# Update PATH
+echo 'PATH="/mydata/go/bin:$PATH"' >> $HOME/.bashrc
+echo 'PATH="$HOME/.flame/bin:$PATH"' >> $HOME/.bashrc
+source $HOME/.bashrc
 
-<a href="https://github.com/cisco-open/flame/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=cisco-open/flame" />
-</a>
+# Install golangci-lint
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
+sh -s -- -b /mydata/go/bin v1.49.0
+golangci-lint --version
 
-## Citation
+# Install Miniconda
+wget https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-x86_64.sh
+chmod +x Miniconda3-py39_23.3.1-0-Linux-x86_64.sh
+bash Miniconda3-py39_23.3.1-0-Linux-x86_64.sh -b -p /mydata/miniconda3
+
+# Initialize conda
+source /mydata/miniconda3/bin/activate
+conda init bash
+source $HOME/.bashrc
+
+# Create and activate environment
+conda create -n flame python=3.9 -y
+conda activate flame
+
+# Python dependencies
+pip install google tensorflow torch torchvision
+
+#for dataset
+pip install google tensorflow torch torchvision mlflow "flwr-datasets[vision]"
+
+git clone -b p2p-vs-mixed-backend https://github.com/Sumit-Haldar1/lifl_flame.git
+
+#Rename it to flame
+
+cd /mydata/flame # && git checkout duplicate-clients
+make install # Install flame control plane utilities
+cd lib/python && make install # Install flame's py environment
+
+#SHM + eBPF Backend Setup
+
+# 1. Install dependencies for libbpf
+sudo apt update && sudo apt install -y \
+  flex bison build-essential dwarves libssl-dev \
+  libelf-dev pkg-config libconfig-dev clang gcc-multilib
+
+# 2. Build and install libbpf (version 0.6.0)
+cd /mydata/flame/third_party/spright_utility/scripts
+./libbpf.sh
+
+# 3. Fix LIBBPF_0.6.0 runtime error by linking correct library
+cd /mydata/flame/third_party/spright_utility/scripts/libbpf/src
+sudo cp libbpf.so.0.6.0 /lib/x86_64-linux-gnu/
+sudo ln -sf /lib/x86_64-linux-gnu/libbpf.so.0.6.0 /lib/x86_64-linux-gnu/libbpf.so.0
+sudo ldconfig
+
+# 4. Compile the sockmap_manager binary
+cd /mydata/flame/third_party/spright_utility/src
+gcc -o sockmap_manager sockmap_manager.c -lbpf -lelf
+mkdir -p ../bin
+mv sockmap_manager ../bin/
+
+# To Run metaserver 
+cd ~/
+sudo .flame/bin/metaserver
+
 
 ```
-@inproceedings{flame2023,
-    author = {Harshit Daga and Jaemin Shin and Dhruv Garg and Ada Gavrilovska and Myungjin Lee and Ramana Rao Kompella},
-    title = {Flame: Simplifying Topology Extension in Federated Learning},
-    year = {2023},
-    booktitle = {Proceedings of the 2023 ACM Symposium on Cloud Computing},
-    keywords = {Federated Learning, Distributed Machine Learning},
-    series = {SoCC '23}
-}
+
+## Run the Experiments (P2P-only vs SHM+P2P)
+
+### 1) Go to the ResNet18 example directory
+
+```bash
+cd /mydata/flame/lib/python/examples/resnet18
+pwd
+ls
 ```
 
+You will see **5 role folders**:
+
+- `coordinator/`
+- `top_aggregator/`
+- `middle_aggregator/`
+- `leaf_aggregator/`
+- `trainer/`
+
+Each folder contains a `main.py` and **two config files** (one for **P2P-only**, one for **SHM+P2P hybrid**).
+
+---
+
+### 2) Pick the mode (choose ONE)
+
+#### Mode A: P2P-only
+Use the config file that has **p2p** backend everywhere (example name pattern: `config_p2p.json`).
+
+#### Mode B: Hybrid (SHM + P2P)
+Use the config file that uses:
+- **shm** for **intra-node channels**
+- **p2p** for **inter-node channels**
+(example name pattern: `config_shm_p2p.json`)
+
+> You will run the **same roles**, only the **config file changes**.
+
+---
+
+### 3) Start processes in this order
+
+#### (A) Coordinator (on the node that hosts Coordinator + Top Aggregator)
+```bash
+cd /mydata/flame/lib/python/examples/resnet18/coordinator
+python main.py <CONFIG_FILE>
 ```
-@inproceedings{lifl-mlsys24,
-    author = {Qi, Shixiong and Ramakrishnan, K. K. and Lee, Myungjin},
-    title = {LIFL: A Lightweight, Event-Driven Serverless Platform for Federated Learning},
-    year = {2024},
-    booktitle = {Proceedings of Machine Learning and Systems},
-}
+
+#### (B) Top Aggregator (same node as Coordinator)
+```bash
+cd /mydata/flame/lib/python/examples/resnet18/top_aggregator
+python main.py <CONFIG_FILE>
 ```
+
+#### (C) Middle Aggregators (worker nodes)
+```bash
+cd /mydata/flame/lib/python/examples/resnet18/middle_aggregator
+python main.py <CONFIG_FILE>
+```
+
+#### (D) Leaf Aggregators (worker nodes)
+```bash
+cd /mydata/flame/lib/python/examples/resnet18/leaf_aggregator
+python main.py <CONFIG_FILE>
+```
+
+#### (E) Trainers (worker nodes)
+```bash
+cd /mydata/flame/lib/python/examples/resnet18/trainer
+python main.py <CONFIG_FILE>
+```
+
+---
+
+### 4) Replace `<CONFIG_FILE>` correctly
+
+Examples (use whatever your repo actually names them):
+
+- **P2P-only run**
+```bash
+python main.py config_p2p.json
+```
+
+- **Hybrid run (SHM + P2P)**
+```bash
+python main.py config_shm_p2p.json
+```
+
+---
+
+### 5) Logs for analysis
+
+After the run finishes, collect logs from **Top Aggregator** (and optionally Coordinator) for:
+- accuracy vs round/time
+- round duration
+- CPU time/utilization
+- communication time breakdown
+
+
